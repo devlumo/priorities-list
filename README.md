@@ -4,7 +4,7 @@
 
 ## Steps to run
 
-- Fork repo
+- Clone this repo
 - Install docker if not installed
 - Run `docker-compose up` command in terminal in root directory
 - Go to localhost:3000
