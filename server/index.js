@@ -16,12 +16,26 @@ const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   database: "items",
+  multipleStatements: true,
 });
 
 app.get("/", (req, res) => {
-  connection.query("SELECT * FROM `items`", function (err, results) {
-    res.send(results);
-  });
+  connection.query(
+    "SELECT * FROM items ORDER BY priority ASC",
+    function (err, results) {
+      res.send(results);
+    }
+  );
+});
+
+app.patch("/update", (req, res) => {
+  const { itemDroppedOn, itemDragged } = req.body;
+  connection.query(
+    `UPDATE items SET priority = ${itemDroppedOn.priority} WHERE id = ${itemDragged.id};UPDATE items SET priority = ${itemDragged.priority} WHERE id = ${itemDroppedOn.id};`,
+    function (err, results) {
+      res.send(results);
+    }
+  );
 });
 
 app.listen(3001, () => {

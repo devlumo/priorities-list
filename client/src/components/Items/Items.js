@@ -9,6 +9,8 @@ import "./itemsStyles.scss";
 function Items() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState(null);
+  const [dropItemIndex, setDropItemIndex] = useState(null);
+  const [draggedItemIndex, setDraggedItemIndex] = useState(null);
 
   async function getItems() {
     const results = await axios.get("http://localhost:3001/", {
@@ -18,9 +20,39 @@ function Items() {
     setLoading(false);
   }
 
-  function handleDrop(e, index) {
+  function allowDrop(e, index) {
     e.preventDefault();
-    console.log(index);
+
+    // here we save the index of the draggedover item
+    // so we can use it in the case it gets dropped on
+    setDropItemIndex(index);
+  }
+
+  async function handleDrop(e) {
+    e.stopPropagation();
+
+    // swap items and reset item state / update backend
+
+    let data = [...items];
+    let saveItem = items[dropItemIndex];
+    data[dropItemIndex] = data[draggedItemIndex];
+    data[draggedItemIndex] = saveItem;
+
+    setItems(data);
+
+    await axios.patch(
+      "http://localhost:3001/update",
+      {
+        // look at swapped items
+        itemDroppedOn: data[draggedItemIndex],
+        itemDragged: data[dropItemIndex],
+      },
+      { withCredentials: true }
+    );
+  }
+
+  function handleDragStart(e, index) {
+    setDraggedItemIndex(index);
   }
 
   useEffect(() => {
@@ -49,7 +81,9 @@ function Items() {
                   index={index}
                   desc={item.description}
                   priority={item.priority}
-                  handleDrop={(index) => handleDrop(index)}
+                  allowDrop={allowDrop}
+                  handleDrop={handleDrop}
+                  onDragStart={handleDragStart}
                 />
               ))}
             </div>
