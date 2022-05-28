@@ -5,5 +5,6 @@
 ## Steps to run
 
 - Fork repo
-- Run `docker compose up` in root directory
-- Check localhost:3000 !
+- Install docker if not installed
+- Run `docker-compose up` command in terminal in root directory
+- Go to localhost:3000
