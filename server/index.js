@@ -2,6 +2,8 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 
+require("dotenv").config();
+
 const app = express();
 app.use(express.json());
 app.use(
@@ -12,15 +14,17 @@ app.use(
   })
 );
 
-const connection = mysql.createConnection({
-  host: "localhost",
+const pool = mysql.createPool({
+  host: process.env.MYSQL_HOST_IP,
+  port: 3306,
   user: "root",
+  password: "root",
   database: "items",
   multipleStatements: true,
 });
 
 app.get("/", (req, res) => {
-  connection.query(
+  pool.query(
     "SELECT * FROM items ORDER BY priority ASC",
     function (err, results) {
       res.send(results);
@@ -30,7 +34,7 @@ app.get("/", (req, res) => {
 
 app.patch("/update", (req, res) => {
   const { itemDroppedOn, itemDragged } = req.body;
-  connection.query(
+  pool.query(
     `UPDATE items SET priority = ${itemDroppedOn.priority} WHERE id = ${itemDragged.id};UPDATE items SET priority = ${itemDragged.priority} WHERE id = ${itemDroppedOn.id};`,
     function (err, results) {
       res.send(results);

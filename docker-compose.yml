@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  server:
+    build:
+      context: ./server
+
+    environment:
+      MYSQL_HOST_IP: db
+    depends_on:
+      - db
+
+    ports:
+      - 3001:3001
+
+    volumes:
+      - ./server:/app/server
+
+    networks:
+      - app
+
+  client:
+    build:
+      context: ./client
+
+    tty: true
+
+    ports:
+      - 3000:3000
+
+    volumes:
+      - ./client:/app/client
+
+    depends_on:
+      - server
+
+    networks:
+      - app
+
+  db:
+    image: mysql:8.0.29
+
+    volumes:
+      - ./init-script.sql:/docker-entrypoint-initdb.d/init-script.sql
+
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+
+    environment:
+      MYSQL_DATABASE: "items"
+      MYSQL_ROOT_PASSWORD: root
+
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
