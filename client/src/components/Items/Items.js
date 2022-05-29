@@ -34,18 +34,27 @@ function Items() {
     // swap items and reset item state / update backend
 
     let data = [...items];
-    let saveItem = items[dropItemIndex];
-    data[dropItemIndex] = data[draggedItemIndex];
-    data[draggedItemIndex] = saveItem;
+    let saveItem = items[dropItemIndex].priority;
+    data[dropItemIndex].priority = data[draggedItemIndex].priority;
+    data[draggedItemIndex].priority = saveItem;
+
+    data.sort((a, b) => {
+      if (a.priority > b.priority) {
+        return 1;
+      } else {
+        return -1;
+      }
+    });
 
     setItems(data);
+
+    console.log(data);
 
     await axios.patch(
       "http://localhost:3001/update",
       {
-        // look at swapped items
-        itemDroppedOn: data[draggedItemIndex],
-        itemDragged: data[dropItemIndex],
+        itemDroppedOn: data[dropItemIndex],
+        itemDragged: data[draggedItemIndex],
       },
       { withCredentials: true }
     );

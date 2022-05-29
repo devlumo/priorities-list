@@ -18,7 +18,6 @@ const pool = mysql.createPool({
   host: process.env.MYSQL_HOST_IP,
   port: 3306,
   user: "root",
-  password: "root",
   database: "items",
   multipleStatements: true,
 });
@@ -27,6 +26,9 @@ app.get("/", (req, res) => {
   pool.query(
     "SELECT * FROM items ORDER BY priority ASC",
     function (err, results) {
+      if (err) {
+        console.log(err);
+      }
       res.send(results);
     }
   );
@@ -35,7 +37,7 @@ app.get("/", (req, res) => {
 app.patch("/update", (req, res) => {
   const { itemDroppedOn, itemDragged } = req.body;
   pool.query(
-    `UPDATE items SET priority = ${itemDroppedOn.priority} WHERE id = ${itemDragged.id};UPDATE items SET priority = ${itemDragged.priority} WHERE id = ${itemDroppedOn.id};`,
+    `UPDATE items SET priority = ${itemDragged.priority} WHERE id = ${itemDragged.id};UPDATE items SET priority = ${itemDroppedOn.priority} WHERE id = ${itemDroppedOn.id};`,
     function (err, results) {
       res.send(results);
     }
