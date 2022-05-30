@@ -31,30 +31,26 @@ function Items() {
   async function handleDrop(e) {
     e.stopPropagation();
 
-    // swap items and reset item state / update backend
+    const draggedItem = items[draggedItemIndex];
 
+    // copy items and remove the dragged item
     let data = [...items];
-    let saveItem = items[dropItemIndex].priority;
-    data[dropItemIndex].priority = data[draggedItemIndex].priority;
-    data[draggedItemIndex].priority = saveItem;
+    data.splice(draggedItemIndex, 1);
 
-    data.sort((a, b) => {
-      if (a.priority > b.priority) {
-        return 1;
-      } else {
-        return -1;
-      }
-    });
+    // rebuild items array
+    let newItems = [
+      ...data.slice(0, dropItemIndex),
+      draggedItem,
+      ...data.slice(dropItemIndex, data.length),
+    ];
+    setItems(newItems);
 
-    setItems(data);
-
-    console.log(data);
+    const jsonItems = JSON.stringify(newItems);
 
     await axios.patch(
       "http://localhost:3001/update",
       {
-        itemDroppedOn: data[dropItemIndex],
-        itemDragged: data[draggedItemIndex],
+        jsonItems,
       },
       { withCredentials: true }
     );
@@ -78,7 +74,7 @@ function Items() {
           <div className="item-list">
             <div className="item-numbers">
               {items.map((item, index) => (
-                <div className="item-number" key={item.id}>
+                <div className="item-number" key={index}>
                   {index + 1}
                 </div>
               ))}
@@ -86,10 +82,9 @@ function Items() {
             <div className="items">
               {items.map((item, index) => (
                 <Item
-                  key={item.id}
+                  key={index}
                   index={index}
-                  desc={item.description}
-                  priority={item.priority}
+                  desc={item}
                   allowDrop={allowDrop}
                   handleDrop={handleDrop}
                   onDragStart={handleDragStart}

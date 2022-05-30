@@ -24,23 +24,22 @@ const pool = mysql.createPool({
 });
 
 app.get("/", (req, res) => {
+  pool.query("SELECT * FROM items", function (err, results) {
+    if (err) {
+      console.log(err);
+    }
+    res.send(results[0].data);
+  });
+});
+
+app.patch("/update", (req, res) => {
+  const { jsonItems } = req.body;
   pool.query(
-    "SELECT * FROM items ORDER BY priority ASC",
+    `UPDATE items SET data = '${jsonItems}' WHERE id = ${1}`,
     function (err, results) {
       if (err) {
         console.log(err);
       }
-      res.send(results);
-    }
-  );
-});
-
-app.patch("/update", (req, res) => {
-  const { itemDroppedOn, itemDragged } = req.body;
-  pool.query(
-    `UPDATE items SET priority = ${itemDragged.priority} WHERE id = ${itemDragged.id};UPDATE items SET priority = ${itemDroppedOn.priority} WHERE id = ${itemDroppedOn.id};`,
-    function (err, results) {
-      res.send(results);
     }
   );
 });
