@@ -18,6 +18,7 @@ const pool = mysql.createPool({
   host: process.env.MYSQL_HOST_IP,
   port: 3306,
   user: "root",
+  password: "root",
   database: "items",
   multipleStatements: true,
 });
